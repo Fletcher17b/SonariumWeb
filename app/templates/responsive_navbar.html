@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<style>
+  :root {
+    --text-primary: #b6b6b6;
+    --text-secondary: #ececec;
+    --bg-primary: #23232e;
+    --bg-secondary: #141418;
+    --transition-speed: 600ms;
+  }
+
+  .navbar {
+    padding: 0;
+    position: fixed;
+    background-color: var(--bg-primary);
+    transition: width 600ms ease;
+    overflow: hidden;
+  }
+
+  .navbar-nav {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+  }
+
+  .nav-item {
+    width: 100%;
+    display: flex;
+    align-items: center;
+  }
+
+  .nav-link {
+    display: flex;
+    align-items: center;
+    height: 3rem;
+    color: var(--text-primary);
+    text-decoration: none;
+    filter: grayscale(100%) opacity(0.7);
+    transition: var(--transition-speed);
+  }
+
+  .nav-link:hover {
+    filter: grayscale(0%) opacity(1);
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+  }
+
+  .link-text {
+    display: none;
+    margin-left: 1rem;
+    text-justify: auto;
+    text-decoration: none;
+  }
+
+  .nav-link svg {
+    width: 2rem;
+    min-width: 2rem;
+    margin: 0 0.85rem;
+  }
+
+  .fa-primary {
+    color: #1c66f0;
+  }
+
+  .fa-secondary {
+    color: #050069;
+  }
+
+  .fa-primary,
+  .fa-secondary {
+    transition: var(--transition-speed);
+  }
+
+  .logo {
+    font-weight: bold;
+    text-transform: uppercase;
+    text-align: center;
+    color: var(--text-secondary);
+    background: var(--bg-secondary);
+    font-size: 1rem;
+    letter-spacing: 0.3ch;
+    width: 100%;
+  }
+
+  .logo svg {
+    transform: rotate(0deg);
+    transition: var(--transition-speed);
+  }
+
+  .logo-text {
+    display: inline;
+    position: absolute;
+    left: -999px;
+    transition: var(--transition-speed);
+  }
+
+  .logo-button {
+    all: unset;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 3.5rem;
+    width: 100%;
+    color: var(--text-primary);
+    filter: grayscale(100%) opacity(0.7);
+    transition: var(--transition-speed);
+    cursor: pointer;
+  }
+
+  .logo-button:hover {
+    filter: grayscale(0%) opacity(1);
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+  }
+
+  .vert-logo {
+    font-weight: bold;
+    text-transform: uppercase;
+    text-align: center;
+    text-decoration: none;
+    /* color: var(--text-secondary); */
+    color: white;
+    background: var(--bg-secondary);
+    font-size: 1rem;
+  }
+
+  .b13a {
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    height: 3rem;
+    color: var(--text-primary);
+   
+  }
+
+  .b13a:hover {
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+  }
+
+
+  .navbar:hover .logo svg {
+    transform: rotate(-180deg);
+  }
+
+  /* Small screens */
+  @media only screen and (max-width: 720px) {
+
+    .vert-logo {
+      display: none;
+    }
+
+    .navbar {
+      top: 0;
+      width: 56px;
+      height: 100vh;
+    }
+
+    .navbar:hover,
+    .navbar.expanded {
+      width: 14rem;
+    }
+
+    .navbar:hover .link-text,
+    .navbar.expanded .link-text {
+      display: inline;
+    }
+
+    .navbar:hover .logo svg,
+    .navbar.expanded .logo svg  {
+      margin-left: 11rem;
+    }
+
+    .navbar:hover .logo-text,
+    .navbar.expanded .logo-text {
+      left: 0px;
+    }
+
+    .nav-item:last-child {
+      margin-top: auto;
+    }
+  }
+
+  /* Large screens */
+  @media only screen and (min-width: 721px) {
+    .navbar {
+      width: 100vw;
+      height: 56px;
+    }
+
+    .logo {
+      display: none;
+    }
+
+    .link-text {
+      margin-right: 2rem;
+    }
+    
+    .navbar-nav {
+      flex-direction: row;
+      width: 100%;
+    }
+
+    .nav-item {
+      width: auto;
+    }
+
+    .nav-item:last-child {
+      margin-left: auto;
+    }
+
+    .nav-link {
+      justify-content: center;
+      padding: 0 1rem;
+      width: 100%;
+    }
+
+    .link-text {
+      display: inline;
+    }
+  }
+</style>
+
+<script>
+  const sidebar = document.getElementById('sidebar');
+  const toggleButton = document.getElementById('toggleSidebar');
+
+  toggleButton.addEventListener('click', () => {
+    sidebar.classList.toggle('expanded');
+  });
+</script>
+
+<nav class="navbar" id="sidebar">
+  <ul class="navbar-nav">
+    <li class="logo">
+      <button class="nav-link logo-button" aria-label="Home" id="toggleSidebar">
+        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
+          <g class="fa-group">
+            <path class="fa-secondary" fill="currentColor" d="M224 273L88.37 409a23.78 23.78 0 0 1-33.8 0L32 386.36a23.94 23.94 0 0 1 0-33.89l96.13-96.37L32 159.73a23.94 23.94 0 0 1 0-33.89l22.44-22.79a23.78 23.78 0 0 1 33.8 0L223.88 239a23.94 23.94 0 0 1 .1 34z"/>
+            <path class="fa-primary" fill="currentColor" d="M415.89 273L280.34 409a23.77 23.77 0 0 1-33.79 0L224 386.26a23.94 23.94 0 0 1 0-33.89L320.11 256l-96-96.47a23.94 23.94 0 0 1 0-33.89l22.52-22.59a23.77 23.77 0 0 1 33.79 0L416 239a24 24 0 0 1-.11 34z"/>
+          </g>
+        </svg>
+        <span class="link-text logo-text">Shitty <br> Project #6</span>
+      </button>
+    </li>
+
+    <li class="vert-logo">
+      <a href="/" class="b13a" style=" text-decoration: none;">
+        <span class="link-text">Shitty Project #6</span>
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a href="#" class="nav-link">
+        <span class="link-text">Profile</span>
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a href="/song" class="nav-link">
+        <span class="link-text">Song Download</span>
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a href="/playlist" class="nav-link">
+        <span class="link-text">Playlist Downloader</span>
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a href="/mp3player" class="nav-link">
+        <span class="link-text">MP3 Player</span>
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a href="#" class="nav-link">
+        <span class="link-text">Settings</span>
+      </a>
+    </li>
+
+
+
+  </ul>
+</nav>
+
+</html>

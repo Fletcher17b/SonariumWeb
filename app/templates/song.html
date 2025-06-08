@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+{% extends "layout.html" %}
+{% block main %}
+<body>
+    <h2>Shitty YouTube to MP3 Converter</h2>
+    <input type="text" id="videoUrl" placeholder="Enter video URL" />
+    <button onclick="requestDownload()">Convert to MP3</button>
+     <p id="status"></p>
+</body>
+
+
+{% endblock %}
+<script>
+    async function requestDownload() {
+        const url = document.getElementById("videoUrl").value;
+        const status = document.getElementById("status");
+
+        if (!url) {
+            status.innerHTML = "Please enter a video URL!";
+            return;
+        }
+
+        status.innerHTML = "Processing, please wait...";
+
+        try {
+            let response = await fetch('/download-mp3', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url })
+            });
+
+            let data = await response.json();
+            if (response.ok) {
+                status.innerHTML = `<a href="${data.file}" download>Download MP3</a>`;
+            } else {
+                status.innerHTML = "Error: " + data.error;
+            }
+        } catch (error) {
+            status.innerHTML = "Failed to connect to server.";
+        }
+    }
+</script>
+
+</html>

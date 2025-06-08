@@ -1,0 +1,50 @@
+/* .wrap {
+    width: 400px;
+    height: 600px;
+    padding: 0;
+    overflow: hidden;
+} */
+
+/* .frame {
+    width: 1200px;
+    height: 1800px;
+    border: 0;
+    -ms-transform: scale(0.25);
+    -moz-transform: scale(0.25);
+    -o-transform: scale(0.25);
+    -webkit-transform: scale(0.25);
+    transform: scale(0.25);
+
+    -ms-transform-origin: 0 0;
+    -moz-transform-origin: 0 0;
+    -o-transform-origin: 0 0;
+    -webkit-transform-origin: 0 0;
+    transform-origin: 0 0;
+}
+ */
+#queue-visualizer {
+    max-width: 500px;
+    margin: 20px auto;
+    border: 1px solid #ddd;
+    padding: 1rem;
+    background-color: #f9f9f9;
+    overflow-y: auto;
+    height: 300px;
+}
+
+.download-card {
+    border: 1px solid #ddd;
+    padding: 0.5rem;
+    margin-bottom: 10px;
+    background-color: #fff;
+}
+
+.progress-bar {
+    background-color: #4caf50;
+    height: 24px;
+    width: 0%;
+    text-align: center;
+    color: white;
+    transition: width 0.3s;
+}
+

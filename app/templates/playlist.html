@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<link rel="stylesheet" href="{{ url_for('static', filename='playlistcss.css') }}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+    integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+    crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
+    integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+    crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
+    integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+    crossorigin="anonymous"></script>
+
+
+<script>
+     // nts: progress bar doesn't work, why? download is too fast, i guess, either way it's irrelevant, 
+    // need to add a btn to clear the queue and one on each card (queue card and song card) to remove it,
+    // also peg download queue to the screen, maybe add an internal scroll if needed (prob not)
+    // Pending: webassembly implementation for user side conversion but too much of a headache 
+
+    // Downloading methos narrowed to 2:
+    // - Local: downloads to mp4a or webm but uses webassembly for conversion to mp3 (pending)
+    // - Hybrid: still confused but basically downloads to server, converts to mp3, then returns finished file to user (done)
+
+    let selectedMethod = "hybrid";
+
+    async function getplaylist() {
+        const url = document.getElementById("URL").value;
+        const status = document.getElementById("status");
+        const playlistContainer = document.getElementById("playlist-container");
+        playlistContainer.innerHTML = "";
+
+        if (!url) {
+            status.innerHTML = "Please enter a playlist URL!";
+            return;
+        }
+
+        status.innerHTML = "Processing, please wait...";
+
+        try {
+            let response = await fetch('/getplaylist', {
+                method: "POST",
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url })
+            });
+
+            let data = await response.json();
+            if (response.ok) {
+                status.innerHTML = `songs displayed below`;
+                renderPlaylist(data.videos,data.source);
+
+            } else {
+                status.innerHTML = "Error: " + data.error;
+            }
+        } catch (error) {
+            status.innerHTML = "Failed to connect to server." + error.stringify();
+        }
+    }
+
+    function renderPlaylist(videos,source) {
+        var Youtube = (function () {
+            'use strict';
+
+            var video, results;
+
+            var getThumb = function (url, size) {
+                if (url === null) {
+                    return '';
+                }
+                size = (size === null) ? 'big' : size;
+                results = url.match('[\\?&]v=([^&#]*)');
+                video = (results === null) ? url : results[1];
+
+                if (size === 'small') {
+                    return 'http://img.youtube.com/vi/' + video + '/2.jpg';
+                }
+                return 'http://img.youtube.com/vi/' + video + '/0.jpg';
+            };
+
+            return {
+                thumb: getThumb
+            };
+        }());
+
+        var counter = 0;
+        //console.log(source);
+        const playlistContainer = document.getElementById("playlist-container");
+        var image;
+        videos.forEach((video, index) => {
+            counter++;
+            const card = document.createElement("div");
+            card.classList.add("card", "mb-2");
+            card.style.cssText = "border: 1px solid #ddd; padding: 1rem;";
+
+            if (source==1) {
+                image = Youtube.thumb(video.url, 'big')
+            } else {
+                image = video.thumbnail
+            }
+            
+            card.innerHTML = `
+            <div class="rendered-card">
+                <div class="wrap" style="margin-right: 1rem;"> 
+                    <img class="frame" src="${image}" alt="Thumbnail" style="width: 200px; height: 150px; margin-right: 1rem;" />
+                </div> 
+                <h5 style="margin: 0; flex-grow: 1;">
+                    <a href="${video.url}" target="_blank" style="text-decoration: none; color: inherit;"> 
+                        ${video.title}
+                    </a>
+                </h5>
+                <div>
+                    <a href="${video.url}" class="btn btn-primary btn-sm" target="_blank">Listen</a> 
+                    <button class="btn btn-success btn-sm download-btn">Download</button>
+                </div>
+            </div>
+        `; // nts: move hyperlink to tittle to remove btn and keep functionality
+            const downloadBtn = card.querySelector(".download-btn");
+            downloadBtn.addEventListener("click", () => actionMapper(video.url, video.title, source));
+            
+            playlistContainer.appendChild(card);
+        });
+        //console.log(counter)
+    }
+
+
+    function actionMapper(url, title, source) {
+
+        if (source==1) {
+               
+            } else {
+                
+            } 
+
+        switch (selectedMethod) {
+            case "local":
+                break;
+            case "hybrid":
+                serverDownload(url, title, source);
+                console.log("hybrid selected")
+                break;
+        }
+
+    }
+    // /serverdownload -> download_onserver() -> tempserver_downloader()
+    async function serverDownload(urlin, title) {
+        const url = urlin;
+        const status = document.getElementById('status');
+
+        status.innerText = "🔄 Processing...";
+
+        try {
+            const response = await fetch('/serverdownload', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url })
+            });
+
+            if (!response.ok) {
+                const err = await response.json();
+                status.innerText = "❌ Error: " + err.error;
+                return;
+            }
+
+            const blob = await response.blob();
+            const disposition = response.headers.get("Content-Disposition");
+            const filenameMatch = disposition?.match(/filename="(.+)"/);
+            const filename = filenameMatch ? filenameMatch[1] : 'audio.mp3';
+
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = filename;
+            a.style.display = 'none';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+
+            status.innerText = `✅ Download started: ${filename}`;
+        } catch (error) {
+            status.innerText = "❌ Failed to connect to server: " + error.message;
+        }
+    }
+
+    // Deprecated Download function, downloads to server 
+    // /download-mp3-> download_mp3() -> downloader()
+    async function requestDownload(argurl, argtitle) {
+        try {
+            let response = await fetch('/download-mp3', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    url: argurl,
+                    title: argtitle
+                })
+
+            });
+
+            let data = await response.json();
+            if (response.ok) {
+                alert("alles gut!");
+                return true;
+            } else {
+                alert("Error in try: " + data.error);
+                return false;
+            }
+        } catch (error) {
+            alert("Error in catch: " + error);
+            return false;
+        }
+    }
+
+    
+    
+
+    
+</script>
+
+{% extends "layout.html" %}
+{% block main %}
+<style>
+  .get-playlist-btn .short-label {
+    display: none;
+  }
+
+  .rendered-card {
+    text-align: left; display: flex; flex-direction: row; align-items: center;
+  }
+
+  .rendered-card img.frame {
+    width: 200px;
+    height: auto;
+    max-width: 100%;
+  }
+
+  .rendered-card h5 {
+    flex-grow: 1;
+    margin: 0;
+  }
+
+  .rendered-card .btn {
+    margin-left: 0.5rem;
+  }
+
+
+  @media (max-width:720px) {
+    
+    .playlist-input {
+        width: 300px;
+    }
+
+    .rendered-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .rendered-card img.frame {
+        width: 100%;
+        height: auto;
+    }
+
+    .rendered-card div {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .omit-col {
+        display: none;
+    }
+
+    .getafuckingmargin3 {
+        margin-left: 1vw;
+    }
+
+    .get-playlist-btn .full-label {
+      display: none;
+    }
+    .get-playlist-btn .short-label {
+      display: inline;
+    }
+
+    .main-banner {
+        grid-row: 2 / span 2;
+    }
+
+
+  }
+</style>
+
+<div style="width: inherit; display: grid; grid-template-columns: 4% 80% 15%; grid-template-rows: 100px 100px auto;">
+    <div style="grid-column: span 3;">
+        <h2 style="text-align: center;">Shitty Playlist downloader</h2>
+    </div>
+    <div></div>
+    <div style="display: grid; grid-template-rows: 50px 50px;" class="main-banner">
+        <div style="display: flex; flex-direction: row;" class="playlist-input">
+            <input type="text" id="URL" placeholder="Enter playlist URL" style="width: 75%;  height: 100%;" class="getafuckingmargin3" />
+            <button onclick="getplaylist()" style="vertical-align: top;" class="get-playlist-btn">
+                <span class="full-label">Get Playlist</span>
+                <span class="short-label">Get</span>
+            </button>
+            <div class="dropdown" style="margin-left: auto; height: 50px;height: 50px;">
+                <button class="btn dropdown-toggle get-playlist-btn" style="background-color:#CEE0F4;" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <span class="full-label">Download method</span>
+                    <span class="short-label">⚙️⬇️</span>
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
+                    <button id="btn-hybrid " class="dropdown-item" type="button">hybrid</button>
+                    <button id="btn-local" class="dropdown-item disabled" type="button" >local</button>
+                    <!-- <button id="btn-wa" class="dropdown-item disabled" type="button">web assembly</button> -->
+                </div>
+            </div>
+        </div>
+        <div style="display: flex; flex-direction: row;">
+           <!--  <p> currently only hybrid method is available</p> -->
+            <p id="status" style="margin-right: 0px;"></p>
+            <p id="dw-method" style="margin-right: 1vw;  margin-left: auto; text-align: center;"></p>
+        </div>  
+
+    </div>
+    <div> <!-- Queue banner -->
+        <div style="text-align: center;" class="omit-col"> Download Queue</div>
+    </div>
+    <div  class="omit-col"></div>
+    <div class="playlist-div">
+        <div class="row" id="playlist-container" style="display: flex; flex-direction: column; width: 100%; padding-left: 1rem;"></div>
+    </div>
+    <div id="queue-section">
+        <div id="queue-container"  class="omit-col"></div>
+    </div>
+
+</div>
+
+
+<script>
+
+    document.getElementById("btn-local").addEventListener("click", () => {
+        selectedMethod = "local";
+        document.getElementById("dw-method").innerText = "Download: Local";
+    });
+
+    document.getElementById("btn-hybrid").addEventListener("click", () => {
+        selectedMethod = "hybrid";
+        document.getElementById("dw-method").innerText = "Download: Hybrid";
+    });
+
+    document.getElementById("btn-wa").addEventListener("click", () => {
+        selectedMethod = "wa";
+        document.getElementById("dw-method").innerText = "Download: WebAssembly";
+    });
+
+    const eventSource = new EventSource("/progress");
+    eventSource.onmessage = (event) => {
+        const updates = JSON.parse(event.data.replace(/'/g, '"'));
+        updateProgress(updates);
+    };
+
+    function updateProgress(updates) {
+        for (const [title, progress] of Object.entries(updates)) {
+            let progressBar = document.getElementById(`progress-${title}`);
+            /* if (!progressBar) {
+                createDownloadCard(title);
+                progressBar = document.getElementById(`progress-${title}`);
+            } */
+            progressBar.style.width = progress === "Completed" ? "100%" : progress;
+            progressBar.innerText = progress;
+        }
+    }
+
+    function addDownloadCard(title) {
+        const container = document.getElementById("queue-container");
+        const card = document.createElement("div");
+        card.classList.add("download-card");
+        card.id = title;
+        card.innerHTML = `
+            <h5>${title}</h5>
+            <div class="progress-bar" id="progress-${title}" style="width: 0%;">0%</div>
+        `;
+        container.appendChild(card);
+    }
+
+    var listresponse;
+    var downloadQueue = [];
+    var isDownloading = false;
+    //------------- Queueing functions -------------------------------------------------------------------------------------------------------------------------
+
+    async function enqueueDownload(url, title) {
+        downloadQueue.push([url, title])
+        addDownloadCard(title);
+        processQueue();
+    }
+
+    async function processQueue() {
+        console.log("Starting processQueue");
+        if (isDownloading || downloadQueue.length === 0) {
+            console.log("Queue is busy or empty");
+            return;
+        }
+
+        isDownloading = true;
+        console.log("Queue started. Items:", downloadQueue);
+        const [videoUrl, title] = downloadQueue.shift();
+        console.log("Processing:", title);
+
+        updateProgress({ [title]: "0%" });
+
+        try {
+            let response = await fetch('/download-mp3', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url: videoUrl, title: title })
+            });
+
+            let data = await response.json();
+            if (response.ok) {
+                updateProgress({ [title]: "Completed" });
+                console.log("Download completed:", title);
+            } else {
+                updateProgress({ [title]: "Failed: " + data.error });
+                console.error("Download failed:", data.error);
+            }
+        } catch (error) {
+            updateProgress({ [title]: "Failed: " + error });
+            console.error("Fetch error:", error);
+        }
+
+        isDownloading = false;
+        console.log("Queue finished, continuing...");
+        processQueue();
+    }
+</script>
+
+
+
+{% endblock %}
+
+</html>

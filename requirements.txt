@@ -1,0 +1,6 @@
+Flask
+yt-dlp
+spotdl
+ffmpeg
+imageio_ffmpeg
+sqlalchemy
