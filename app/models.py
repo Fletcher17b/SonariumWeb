@@ -43,4 +43,11 @@ class User(db.Model):
         return f"<User {self.username} ({self.userid})>"
     
 
+class Song(db.Model):
+    __tablename__ = 'songs' 
+    id = db.Column(db.Integer, primary_key=True)
+
     
+
+    def __repr__(self):
+        return f"<Song {self.username} ({self.userid})>"

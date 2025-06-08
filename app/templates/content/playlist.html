@@ -305,7 +305,7 @@
                     <span class="short-label">⚙️⬇️</span>
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
-                    <button id="btn-hybrid " class="dropdown-item" type="button">hybrid</button>
+                    <button id="btn-hybrid" class="dropdown-item" type="button">hybrid</button>
                     <button id="btn-local" class="dropdown-item disabled" type="button" >local</button>
                     <!-- <button id="btn-wa" class="dropdown-item disabled" type="button">web assembly</button> -->
                 </div>
@@ -344,10 +344,10 @@
         document.getElementById("dw-method").innerText = "Download: Hybrid";
     });
 
-    document.getElementById("btn-wa").addEventListener("click", () => {
+   /*  document.getElementById("btn-wa").addEventListener("click", () => {
         selectedMethod = "wa";
         document.getElementById("dw-method").innerText = "Download: WebAssembly";
-    });
+    }); */
 
     const eventSource = new EventSource("/progress");
     eventSource.onmessage = (event) => {

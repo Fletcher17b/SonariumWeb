@@ -227,14 +227,7 @@
   }
 </style>
 
-<script>
-  const sidebar = document.getElementById('sidebar');
-  const toggleButton = document.getElementById('toggleSidebar');
 
-  toggleButton.addEventListener('click', () => {
-    sidebar.classList.toggle('expanded');
-  });
-</script>
 
 <nav class="navbar" id="sidebar" style="margin-top: 0;">
   <ul class="navbar-nav">
@@ -257,8 +250,8 @@
     </li>
 
     <li class="nav-item">
-      <a href="#" class="nav-link">
-        <span class="link-text">Profile</span>
+      <a href="/playlist" class="nav-link">
+        <span class="link-text">Playlist Downloader</span>
       </a>
     </li>
 
@@ -269,26 +262,25 @@
     </li>
 
     <li class="nav-item">
-      <a href="/playlist" class="nav-link">
-        <span class="link-text">Playlist Downloader</span>
-      </a>
-    </li>
-
-    <li class="nav-item">
       <a href="/mp3player" class="nav-link">
         <span class="link-text">MP3 Player</span>
       </a>
     </li>
 
     <li class="nav-item">
-      <a href="#" class="nav-link">
+      <a href="/settings" class="nav-link">
         <span class="link-text">Settings</span>
       </a>
     </li>
 
-
-
   </ul>
 </nav>
+<script>
+  const sidebar = document.getElementById('sidebar');
+  const toggleButton = document.getElementById('toggleSidebar');
 
+  toggleButton.addEventListener('click', () => {
+    sidebar.classList.toggle('expanded');
+  });
+</script>
 </html>

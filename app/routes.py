@@ -1,33 +1,39 @@
-from flask import Flask,Blueprint, render_template,request, jsonify, send_file, Response, stream_with_context,after_this_request
+from flask import Flask,Blueprint, render_template,request, jsonify, send_file, Response, stream_with_context,after_this_request,session
 from flask_sqlalchemy import SQLAlchemy
 import yt_dlp,os,time,re,json,ffmpeg
 
 from app.utils.spotifyhandler.spotify_apicalls import get_renderableplaylist
 from app.utils.ythandler.youtubeall import normalize_youtube_url,downloader,evalUrl_source,tempserver_downloader,progress_updates
+from app import db
+from app.models import User
+from app.utils.loggin_ops import login_required
+
 
 app = Blueprint('app', __name__)
 
+#session['user_id'] = User.userid
+#session['username'] = User.username
 # ------------------------------------      GET        -------------------------------------------------------------------------
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('content/index.html')
 
 @app.route('/song')
 def single_song():
-    return render_template('song.html')
+    return render_template('content/song.html')
 
 @app.route('/playlist')
 def playlist():
-    return render_template('playlist.html')
+    return render_template('content/playlist.html')
 
 @app.route('/mp3player')
 def mp3player():
-    return render_template('player.html')
+    return render_template('content/player.html')
 
 @app.route('/settings')
 def settingsview():
-    return render_template('settings.html')
+    return render_template('content/settings.html')
 
 @app.route('/usersettings')
 def usersettingsview():
@@ -39,7 +45,8 @@ def testview():
 
 @app.route('/admin')
 def adminview():
-    return render_template('adminpage.html')
+    users = User.query.all()
+    return render_template('admin/adminpage.html',users=users)
 
 # ------------------------------------      POST        -------------------------------------------------------------------------
 @app.route('/download-mp3', methods=['POST']) # nts: change name download-mp3 -> download_song
@@ -67,6 +74,11 @@ def download_mp3():
 
 @app.route('/getplaylist', methods=['POST'])
 def get_playlist():
+    """
+
+    |   returns renderable list of songs to be displayed in front end, |
+    |    direct yt-dlp implementation, spotify custom backend in spotifyhandler -> get_renderableplaylist()
+    """
     data = request.get_json()
     playlist_url = data.get("url")
 
@@ -121,15 +133,20 @@ def get_playlist():
     
 @app.route('/serverdownload', methods=['POST'])
 def download_onserver():
+    """
+
+    |    Download on memory to be sent to user, no disk IOPs on server |
+    |    custom logic in ythandler -> tempserver_downloader()
+    """
     data = request.get_json()
     url = data.get('url')
-    print("recieved url:",url)
+    #print("recieved url:",url)
     if not url:
         return jsonify({'error': 'No URL provided'}), 400
 
     source = evalUrl_source(url)
 
-    print("source: ",source)
+    #print("source: ",source)
 
     success, result, filename = tempserver_downloader(url,source)
     if not success:
@@ -139,6 +156,9 @@ def download_onserver():
 
 @app.route('/localdownload', methods=['POST'])
 def download_onclient():
+    """
+        deprecated
+    """
     data = request.get_json()
     url = data.get('url')
 
@@ -190,7 +210,6 @@ def proxy_audio():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-
 @app.route('/progress', methods=['GET'])
 def progress():
     def stream():
@@ -199,3 +218,22 @@ def progress():
             yield f"data: {json_data}\n\n"
             time.sleep(1)
     return Response(stream_with_context(stream()), content_type='text/event-stream')
+
+# ------------------------------------      Logging ops Routes       -------------------------------------------------------------------------
+
+@app.route('/login')
+def loggin():
+   return render_template('logging/login.html')
+
+
+@app.route('/loggout')
+def loggout():
+
+    session.clear()
+    print()
+
+@app.route('/register')
+def register_user():
+    print()
+
+    

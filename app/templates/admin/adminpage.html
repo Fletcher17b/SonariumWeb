@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+{% extends "layout.html" %}
+{% block main %}
+<style>
+        table { border-collapse: collapse; width: 80%; margin: auto; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+        th { background-color: #eee; }
+        a.button { padding: 5px 10px; background-color: red; color: white; text-decoration: none; border-radius: 3px; }
+</style>
+ <h2 style="text-align:center;">User Management Panel</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>User ID</th>
+                <th>Username</th>
+                <th>Permissions</th>
+                <th>Grade</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.userid }}</td>
+                <td>{{ user.username }}</td>
+                <td>{{ 'Admin' if user.userperms == 2 else 'User' }}</td>
+                <td>{{ user.usergrade }}</td>
+                <td>
+                
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}
+
+</html>
