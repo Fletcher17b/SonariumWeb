@@ -1,6 +1,11 @@
 Flask
+Flaskmail
+flask_sqlalchemy
+flask_bcrypt
+flask_mail
 yt-dlp
 spotdl
 ffmpeg
 imageio_ffmpeg
-sqlalchemy
+itsdangerous
+pprint

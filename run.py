@@ -1,4 +1,5 @@
 from app import create_app,db
+from flask_bcrypt import Bcrypt
 
 app = create_app()
 

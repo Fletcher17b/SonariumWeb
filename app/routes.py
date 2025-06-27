@@ -1,18 +1,24 @@
-from flask import Flask,Blueprint, render_template,request, jsonify, send_file, Response, stream_with_context,after_this_request,session
+from flask import Flask,Blueprint, render_template,request, jsonify, send_file, Response, stream_with_context,after_this_request,session,url_for
 from flask_sqlalchemy import SQLAlchemy
-import yt_dlp,os,time,re,json,ffmpeg
+import yt_dlp,os,time,re,json,pprint
+from itsdangerous import URLSafeTimedSerializer
+from flask_bcrypt import Bcrypt
+from flask_mail import Message
 
 from app.utils.spotifyhandler.spotify_apicalls import get_renderableplaylist
 from app.utils.ythandler.youtubeall import normalize_youtube_url,downloader,evalUrl_source,tempserver_downloader,progress_updates
-from app import db
+from app.utils.userregistration import generate_registration_token,send_registration_email
+from app import db,mail,bcrypt
 from app.models import User
+from app.utils.helpers.helpers_file import email_validation,validate_user_data
 from app.utils.loggin_ops import login_required
+from app.utils.DBhandler.dbhandler import email_query
+
 
 
 app = Blueprint('app', __name__)
 
-#session['user_id'] = User.userid
-#session['username'] = User.username
+
 # ------------------------------------      GET        -------------------------------------------------------------------------
 
 @app.route('/')
@@ -41,7 +47,19 @@ def usersettingsview():
 
 @app.route('/test')
 def testview():
-    return render_template('prototyping.html')
+    return render_template('logging/resultpage.html')
+
+@app.route('/register') 
+def register_user():
+    return render_template('logging/register.html')
+
+@app.route('/registersuccess')
+def registrationsuccesful():
+    return render_template('logging/resultpage.html')
+
+@app.route('/login')
+def loggin():
+   return render_template('logging/login.html')
 
 @app.route('/admin')
 def adminview():
@@ -120,12 +138,12 @@ def get_playlist():
         try: 
             tracklist,status = get_renderableplaylist(playlist_url)
 
+            print(status)
             if (tracklist==None or status == 429):
                 return jsonify({"error": "error on API call",}), 500
 
             if status == 200:
                 return jsonify({"videos": tracklist,"source":source}), 200
-            
 
             return jsonify({"error": "error somewhere jeje",}), 500
         except Exception as e: 
@@ -221,10 +239,15 @@ def progress():
 
 # ------------------------------------      Logging ops Routes       -------------------------------------------------------------------------
 
-@app.route('/login')
-def loggin():
-   return render_template('logging/login.html')
 
+
+@app.route('/loginuser')
+def loggin_user():
+    print()
+
+@app.route('/logginenp')
+def login_user():
+    session.clear()
 
 @app.route('/loggout')
 def loggout():
@@ -232,8 +255,50 @@ def loggout():
     session.clear()
     print()
 
-@app.route('/register')
-def register_user():
-    print()
+@app.route('/registeruser',methods=['POST'])
+def registerUser():
+    errors,user_data = validate_user_data(request.form)
+    hashed_password = bcrypt.generate_password_hash(user_data.password).decode('utf-8')
 
+    tempdata = {
+        'username': user_data.username,
+        'email': user_data.email,
+        'password': hashed_password
+    }
+
+    print("Errors: ", errors)
+    if errors:
+        return jsonify({'success': False, 'errors': errors}), 400
+
+    token = generate_registration_token(tempdata)
+    send_registration_email(user_data.email, token)
     
+    #user = User(username=user_data.username, useremail=user_data.email, password=hashed_password)
+    #db.session.add(user)
+    #db.session.commit()
+
+    #return jsonify({'success': True, 'message': 'User registered successfully'}), 201
+    return jsonify({'success': True, 'message': 'Please confirm your email to complete registration.'}), 202
+    
+
+@app.route('/confirm/<token>')
+def confirm_email(token):
+    s = URLSafeTimedSerializer(os.getenv('SECRET_KEY'))
+    try:
+        data = s.loads(token, salt='register-confirm', max_age=3600)
+    except:
+        return jsonify({'message':'Invalid or expired token'}), 400
+
+    if User.query.filter_by(useremail=data['email']).first():
+        return jsonify({'message':'Account already exists.'})
+
+    new_user = User(
+        username=data['username'],
+        useremail=data['email'],
+        password=data['password'],
+    )
+
+    db.session.add(new_user)
+    db.session.commit()
+#jsonify({'message': 'Account confirmed and created! You can now log in.'}), 201
+    return render_template('logging/resultpage.html', username=data['username'])

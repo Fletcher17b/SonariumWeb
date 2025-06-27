@@ -13,6 +13,7 @@ class User(db.Model):
     
     # Basic info
     username = db.Column(db.String(80), unique=True, nullable=False)
+    useremail = db.Column(db.String(80), unique=True, nullable=False)
     userid = db.Column(db.String(8), unique=True, default=lambda: str(uuid.uuid4().int)[:8])
     password = db.Column(db.String(256), nullable=False) 
 
@@ -42,12 +43,14 @@ class User(db.Model):
     def __repr__(self):
         return f"<User {self.username} ({self.userid})>"
     
+class Preferences():
+    userid = ''
 
 class Song(db.Model):
     __tablename__ = 'songs' 
     id = db.Column(db.Integer, primary_key=True)
 
-    
+
 
     def __repr__(self):
         return f"<Song {self.username} ({self.userid})>"

@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css" />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+
+<!-- 
+    nts: todo:
+        1. Pop up model for email sending 
+        2. Send email for confirmation
+        3. User opens email content and presses a button to confirm it 
+-->
+
+
+{% extends "layout.html" %}
+{% block main %}
+<style>
+    .main_form {
+        display: grid;
+        grid-template-columns: 1fr;
+        grid-template-rows: 60% 40%;
+        margin-top: 2vh;
+        margin-left: 20vw;
+        margin-right: 20vw;
+    }
+
+    .username_input {
+        width: 30%;
+    }
+
+    .content_section {
+        margin-top: 10vh;
+        display: flex;
+        justify-content: center;
+    }
+
+    .content_section_inner {
+        width: 30vw;
+    }
+
+    .eye_thingy {
+        cursor: pointer;
+    }
+
+    .status_p {
+        color: red;
+        display: none;
+        margin-bottom: 0px; 
+        text-align: left; 
+        margin-left: 2.5vw;
+    }
+
+    .input_css {
+        height: 50px; 
+        margin-bottom: 0px;
+    }
+
+    @media only screen and (max-width: 720px) {
+        .main_form {
+            margin-left: 10vw;
+            margin-right: 5vw;
+        }
+
+        .username_input {
+            width: 100%;
+        }
+
+        .content_section {
+            margin-top: 0vh;
+        }
+
+        .content_section_inner {
+            width: fit-content;
+        }
+    }
+
+    @media only screen and (min-width: 721px) {}
+</style>
+
+<script ></script>
+
+
+<div class="main_form">
+    <div class="content_section">
+        <div class="card content_section_inner" style="border-radius: 1.25rem;">
+            <div class="card-body">
+                <h3 class="card-title">Sign up</h3>
+                <h6 class="card-subtitle mb-2 text-muted">Begin your journy into free music</h6>
+                <div class="" style="margin-bottom: 3vh;">
+                    <form id="registerForm" method="POST">
+                        <div style="display: flex; flex-direction: column;">
+                            <!-- Username field -->
+                            <div class="input-group" style="display: flex; flex-direction: column; margin-bottom: 2vh;">
+                                <p class="card-text" style="margin-bottom: 0px; text-align: left; margin-left: 2.5vw;"> Username</p>
+                                <div style="display: flex; flex-direction: row; margin-bottom: 0px; margin-right: 2.5vw; margin-left: 2.5vw;">
+                                   <!--  <span style="height: 50px; width: 10%;" class="input-group-text" id="basic-addon1" >@</span> -->
+                                    <input name="username" required type="text" class="form-control input_css" placeholder="Username" aria-label="Username"aria-describedby="basic-addon1">
+                                </div>
+                                <p id="username_status" class="card-text status_p"></p>
+                            </div>
+
+                            <!-- Email field -->
+                            <div class="input-group" style="display: flex; flex-direction: column; margin-bottom: 2vh;">
+                                <p class="card-text" style="margin-bottom: 0px; text-align: left; margin-left: 2.5vw;"> Email</p>
+                                <div style="display: flex; flex-direction: row; margin-bottom: 0px; margin-right: 2.5vw; margin-left: 2.5vw;">
+                                    <input name="email" required type="text" class="form-control" placeholder="email" aria-label="Username"aria-describedby="basic-addon1">
+                                </div>
+                                 <p id="useremail_status" class="card-text status_p"></p>
+                            </div>
+
+                            <!-- Password Field -->
+                            <div class="input-group" style="display: flex; flex-direction: column; margin-bottom: 2vh;">
+                                <p class="card-text" style="margin-bottom: 0px; text-align: left; margin-left: 2.5vw;"> Password</p>
+                                <div style="display: flex; flex-direction: row; margin-bottom: 0px; margin-right: 2.5vw; margin-left: 2.5vw;">
+                                    <input name="password" required id="password" style="height: 50px; margin-bottom: 0px;" type="password" name="password" class="form-control" placeholder="add a secure password" aria-label="Username" aria-describedby="basic-addon1">
+                                    <span class="input-group-text eye_thingy" id="togglePassword">
+                                        <i class="bi bi-eye-slash" ></i>
+                                    </span>
+                                </div>
+                                 <p id="userpassword_status" class="card-text status_p"></p>
+                            </div>
+
+                            <!-- Password confirmation -->
+                            <div class="input-group" style="display: flex; flex-direction: column; margin-bottom: 2vh;">
+                                <p class="card-text" style="margin-bottom: 0px; text-align: left; margin-left: 2.5vw;">Confirm Password</p>
+                                <div style="display: flex; flex-direction: row; margin-bottom: 0px; margin-right: 2.5vw; margin-left: 2.5vw;">
+                                    <input name="confirm_password" required id="confirm_password" style="height: 50px; margin-bottom: 0px;" type="password" name="password" class="form-control" placeholder="confirm password" aria-label="Username" aria-describedby="basic-addon1">
+                                    <span class="input-group-text eye_thingy" id="togglePasswordConfirm">
+                                        <i class="bi bi-eye-slash" ></i>
+                                    </span>
+                                </div>
+                                 <p id="userpasswordconfirm_status" class="card-text status_p"></p>
+                            </div>
+
+                            <button type="submit" id="submitbtn" class="btn btn-primary" style="width: fit-content; margin-left: 2.5vw;" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                                <p style="margin: 0px;"> Register </p>
+                            </button>
+                           
+
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                
+
+            </div>
+        </div>
+    </div>
+
+    <div>
+
+    </div>
+    <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius: 1rem;">
+      <div class="modal-header">
+        <h5 class="modal-title" id="successModalLabel">Almost there!</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Your registration was successful. Please check your email to confirm your account.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Okay</button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+    
+    const togglePassword = document.querySelector('#togglePassword');
+    const password = document.querySelector('#password');
+    const passwordconfirm = document.querySelector('#confirm_password');
+    const togglePasswordConfirm = document.querySelector('#togglePasswordConfirm');
+
+    function debouncer(element_id1) {
+        const debounced_element = document.querySelector(element_id1);
+        
+    }
+
+    togglePassword.addEventListener('click', () => {
+        const type = password
+            .getAttribute('type') === 'password' ?
+            'text' : 'password';
+        password.setAttribute('type', type);
+        this.classList.toggle('bi-eye');
+    });
+        
+    togglePasswordConfirm.addEventListener('click', () => {
+        const type = passwordconfirm.getAttribute('type') === 'password' ?'text' : 'password';
+        passwordconfirm.setAttribute('type', type);
+        this.classList.toggle('bi-eye');
+    });
+
+    const statusFields = {
+            username: 'username_status',
+            email: 'useremail_status',
+            password: 'userpassword_status',
+            password_confirm: 'userpasswordconfirm_status'
+    };
+
+    document.getElementById('registerForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            for (let id of Object.values(statusFields)) {
+                document.getElementById(id).textContent = '';
+            }
+
+            const form = e.target;
+            const formData = new FormData(form);
+            console.log(formData)
+
+            const submit_button = document.getElementById('submitbtn');
+            submit_button.disabled = True
+
+            try {
+                const response = await fetch('/registeruser', {
+                    method: 'POST',
+                    
+                    body: formData
+                });
+
+                const result = await response.json();
+                console.log(result)
+                if (result.success) {
+                    const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+                    successModal.show();
+                    form.reset();
+                } else if (result.errors) {
+                    for (let field in result.errors) {
+                        const elId = statusFields[field];
+                        const el = document.getElementById(elId);
+                        if (el) {
+                            el.style.display = 'block';
+                            el.textContent = result.errors[field];
+                            el.style.color = 'red';
+                        } else {
+                            console.warn(`No element for ${field}`);
+                        }
+                    }
+
+
+                }
+
+            } catch (error) {
+                const general = document.getElementById('useremail_status');
+                general.textContent = 'An unexpected error occurred.';
+                general.style.color = 'red';
+            }
+        });
+
+
+        async function RegisterUserRequest(data,url) {
+            
+        }
+    
+</script>
+
+{% endblock %}
+
+</html>

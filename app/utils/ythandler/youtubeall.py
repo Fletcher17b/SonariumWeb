@@ -1,4 +1,4 @@
-import yt_dlp,os,shutil,threading, queue,time,re,json,uuid,subprocess,spotdl,ffmpeg,imageio_ffmpeg
+import yt_dlp,os,shutil,threading, queue,time,re,json,uuid,subprocess,spotdl,imageio_ffmpeg
 from io import BytesIO
 from spotdl.utils.spotify import SpotifyClient
 from spotdl.utils.search import parse_query
